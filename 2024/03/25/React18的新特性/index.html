@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="React 18 是 2022 年发布的版本，引入并发渲染（Concurrent Rendering） —— 允许 React 中断、暂停、恢复或放弃渲染，避免渲染阻塞主线程（如输入、滚动），同时大幅提升性能和开发体验。以下是核心特性（按重要性排序）： 1. 并发渲染（Concurrent Rendering）这是 React 18 最核心的变化：  作用：传统渲染是同步且不可中断的（一旦开始渲染">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React18的新特性">
+<meta property="og:url" content="http://yoursite.com/2024/03/25/React18%E7%9A%84%E6%96%B0%E7%89%B9%E6%80%A7/index.html">
+<meta property="og:site_name" content="叶子不能吃哦">
+<meta property="og:description" content="React 18 是 2022 年发布的版本，引入并发渲染（Concurrent Rendering） —— 允许 React 中断、暂停、恢复或放弃渲染，避免渲染阻塞主线程（如输入、滚动），同时大幅提升性能和开发体验。以下是核心特性（按重要性排序）： 1. 并发渲染（Concurrent Rendering）这是 React 18 最核心的变化：  作用：传统渲染是同步且不可中断的（一旦开始渲染">
+<meta property="article:published_time" content="2024-03-25T12:15:29.000Z">
+<meta property="article:modified_time" content="2026-03-17T08:16:39.250Z">
+<meta property="article:author" content="金金金">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2024/03/25/React18的新特性/"/>
+
+
+
+
+
+  <title>React18的新特性 | 叶子不能吃哦</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">叶子不能吃哦</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/03/25/React18%E7%9A%84%E6%96%B0%E7%89%B9%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="金金金">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="叶子不能吃哦">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React18的新特性</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-03-25T20:15:29+08:00">
+                2024-03-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>React 18 是 2022 年发布的版本，<strong>引入并发渲染（Concurrent Rendering）</strong> —— 允许 React 中断、暂停、恢复或放弃渲染，避免渲染阻塞主线程（如输入、滚动），同时大幅提升性能和开发体验。以下是核心特性（按重要性排序）：</p>
+<h4 id="1-并发渲染（Concurrent-Rendering）"><a href="#1-并发渲染（Concurrent-Rendering）" class="headerlink" title="1. 并发渲染（Concurrent Rendering）"></a>1. 并发渲染（Concurrent Rendering）</h4><p>这是 React 18 最核心的变化：</p>
+<ul>
+<li><strong>作用</strong>：传统渲染是同步且不可中断的（一旦开始渲染，必须完成，否则阻塞用户交互）；并发渲染允许 React “在后台” 渲染组件，不阻塞主线程，用户操作（如输入、滚动）更流畅。</li>
+<li><strong>启用方式</strong>：通过 <code>createRoot</code> 替代旧的 <code>ReactDOM.render</code>。</li>
+</ul>
+<p><strong>示例（入口升级）</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; React 17 及之前</span><br><span class="line">import ReactDOM from &#39;react-dom&#39;;</span><br><span class="line">ReactDOM.render(&lt;App &#x2F;&gt;, document.getElementById(&#39;root&#39;));</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; React 18（启用并发渲染）</span><br><span class="line">import ReactDOM from &#39;react-dom&#x2F;client&#39;;</span><br><span class="line">const root &#x3D; ReactDOM.createRoot(document.getElementById(&#39;root&#39;));</span><br><span class="line">root.render(&lt;App &#x2F;&gt;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-自动批处理（Automatic-Batching）：减少不必要的重渲染"><a href="#2-自动批处理（Automatic-Batching）：减少不必要的重渲染" class="headerlink" title="2. 自动批处理（Automatic Batching）：减少不必要的重渲染"></a>2. 自动批处理（Automatic Batching）：减少不必要的重渲染</h4><ul>
+<li><strong>作用</strong>：React 会自动合并多个 <code>setState</code> 更新，只触发一次重渲染（之前仅在事件处理函数中批处理，异步代码/定时器中不生效）。</li>
+<li><strong>解决的问题</strong>：避免多次 setState 导致的重复渲染，提升性能。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; React 17：3次setState → 3次重渲染</span><br><span class="line">&#x2F;&#x2F; React 18：3次setState → 1次重渲染（自动批处理）</span><br><span class="line">const handleClick &#x3D; async () &#x3D;&gt; &#123;</span><br><span class="line">  setCount(c &#x3D;&gt; c + 1);</span><br><span class="line">  setName(&#39;React&#39;);</span><br><span class="line">  await fetch(&#39;&#x2F;api&#x2F;data&#39;); &#x2F;&#x2F; 异步代码中也会批处理</span><br><span class="line">  setAge(18);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-Transitions-API：区分「紧急-非紧急更新」"><a href="#3-Transitions-API：区分「紧急-非紧急更新」" class="headerlink" title="3. Transitions API：区分「紧急/非紧急更新」"></a>3. Transitions API：区分「紧急/非紧急更新」</h4><ul>
+<li><strong>作用</strong>：将更新分为紧急更新（如输入框打字、按钮点击）和非紧急更新（如列表筛选、大数据渲染），避免非紧急更新阻塞紧急操作。</li>
+<li><strong>核心 API</strong>：<code>useTransition</code>（Hook）、<code>startTransition</code>（方法）。</li>
+</ul>
+<p><strong>示例（列表筛选不阻塞输入）</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">import &#123; useState, useTransition &#125; from &#39;react&#39;;</span><br><span class="line"></span><br><span class="line">function Search() &#123;</span><br><span class="line">  const [input, setInput] &#x3D; useState(&#39;&#39;);</span><br><span class="line">  const [list, setList] &#x3D; useState([]);</span><br><span class="line">  const [isPending, startTransition] &#x3D; useTransition(); &#x2F;&#x2F; 非紧急更新</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 输入是紧急更新，筛选列表是非紧急更新</span><br><span class="line">  const handleInput &#x3D; (e) &#x3D;&gt; &#123;</span><br><span class="line">    setInput(e.target.value); &#x2F;&#x2F; 紧急：立即更新，不阻塞输入</span><br><span class="line">    &#x2F;&#x2F; 非紧急：在后台渲染筛选结果，不卡顿</span><br><span class="line">    startTransition(() &#x3D;&gt; &#123;</span><br><span class="line">      const filteredList &#x3D; bigData.filter(item &#x3D;&gt; item.includes(e.target.value));</span><br><span class="line">      setList(filteredList);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  return (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;input value&#x3D;&#123;input&#125; onChange&#x3D;&#123;handleInput&#125; &#x2F;&gt;</span><br><span class="line">      &#123;isPending ? &lt;div&gt;加载中...&lt;&#x2F;div&gt; : &lt;List data&#x3D;&#123;list&#125; &#x2F;&gt;&#125;</span><br><span class="line">    &lt;&#x2F;&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-Suspense-增强：支持数据请求-流式渲染"><a href="#4-Suspense-增强：支持数据请求-流式渲染" class="headerlink" title="4. Suspense 增强：支持数据请求 + 流式渲染"></a>4. Suspense 增强：支持数据请求 + 流式渲染</h4><ul>
+<li><strong>作用</strong>：React 18 扩展了 Suspense 的能力，从代码分割扩展到数据请求（配合 React Server Components），支持“加载中占位 + 流式渲染”。</li>
+<li><strong>核心场景</strong>：等待数据加载时显示兜底 UI，数据加载完成后渲染组件，无需手动处理 loading 状态。</li>
+</ul>
+<p><strong>示例（配合数据请求）</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 假设 fetchUser 是返回 Promise 的数据请求函数</span><br><span class="line">const User &#x3D; lazy(() &#x3D;&gt; import(&#39;.&#x2F;User&#39;));</span><br><span class="line"></span><br><span class="line">function App() &#123;</span><br><span class="line">  return (</span><br><span class="line">    &lt;Suspense fallback&#x3D;&#123;&lt;div&gt;加载用户数据中...&lt;&#x2F;div&gt;&#125;&gt;</span><br><span class="line">      &lt;User id&#x3D;&#123;1&#125; &#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;Suspense&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-其他实用特性"><a href="#5-其他实用特性" class="headerlink" title="5. 其他实用特性"></a>5. 其他实用特性</h4><ul>
+<li><code>useDeferredValue</code>：延迟更新非紧急值（类似防抖，但由 React 控制时机），适合大数据渲染；</li>
+<li><code>useId</code>：生成跨服务端/客户端的唯一 ID，解决 SSR 时 hydration 不匹配的问题；</li>
+<li><code>hydrateRoot</code>：替代旧的 <code>hydrate</code>，支持并发模式下的 SSR 水合。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/03/22/React%E4%B8%AD%E8%B0%83%E7%94%A8setState%E5%90%8E%E5%8F%91%E7%94%9F%E7%9A%84%E4%BA%8B%E6%83%85%E5%8F%8A%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" rel="next" title="React中调用setState后发生的事情及异步处理机制">
+                <i class="fa fa-chevron-left"></i> React中调用setState后发生的事情及异步处理机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/04/03/React%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6/" rel="prev" title="React合成事件">
+                React合成事件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">金金金</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-并发渲染（Concurrent-Rendering）"><span class="nav-number">1.</span> <span class="nav-text">1. 并发渲染（Concurrent Rendering）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-自动批处理（Automatic-Batching）：减少不必要的重渲染"><span class="nav-number">2.</span> <span class="nav-text">2. 自动批处理（Automatic Batching）：减少不必要的重渲染</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Transitions-API：区分「紧急-非紧急更新」"><span class="nav-number">3.</span> <span class="nav-text">3. Transitions API：区分「紧急&#x2F;非紧急更新」</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Suspense-增强：支持数据请求-流式渲染"><span class="nav-number">4.</span> <span class="nav-text">4. Suspense 增强：支持数据请求 + 流式渲染</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-其他实用特性"><span class="nav-number">5.</span> <span class="nav-text">5. 其他实用特性</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">金金金</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

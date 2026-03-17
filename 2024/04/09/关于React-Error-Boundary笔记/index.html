@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、Error Boundary 是什么？Error Boundary（错误边界）是 React 提供的组件级错误处理机制，它是一个只能用类组件实现的特殊组件，专门负责捕获其子组件树中抛出的运行时错误，并阻止错误向上冒泡导致整个应用崩溃，同时显示友好的UI（比如“加载失败，请重试”），而非让页面变成空白。 为什么需要 Error Boundary？React 组件默认的错误行为是牵一发而动全身：如">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于React Error Boundary笔记">
+<meta property="og:url" content="http://yoursite.com/2024/04/09/%E5%85%B3%E4%BA%8EReact-Error-Boundary%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="叶子不能吃哦">
+<meta property="og:description" content="一、Error Boundary 是什么？Error Boundary（错误边界）是 React 提供的组件级错误处理机制，它是一个只能用类组件实现的特殊组件，专门负责捕获其子组件树中抛出的运行时错误，并阻止错误向上冒泡导致整个应用崩溃，同时显示友好的UI（比如“加载失败，请重试”），而非让页面变成空白。 为什么需要 Error Boundary？React 组件默认的错误行为是牵一发而动全身：如">
+<meta property="article:published_time" content="2024-04-09T00:19:54.000Z">
+<meta property="article:modified_time" content="2026-03-17T08:20:37.303Z">
+<meta property="article:author" content="金金金">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2024/04/09/关于React-Error-Boundary笔记/"/>
+
+
+
+
+
+  <title>关于React Error Boundary笔记 | 叶子不能吃哦</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">叶子不能吃哦</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/04/09/%E5%85%B3%E4%BA%8EReact-Error-Boundary%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="金金金">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="叶子不能吃哦">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">关于React Error Boundary笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-04-09T08:19:54+08:00">
+                2024-04-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、Error-Boundary-是什么？"><a href="#一、Error-Boundary-是什么？" class="headerlink" title="一、Error Boundary 是什么？"></a>一、Error Boundary 是什么？</h3><p>Error Boundary（错误边界）是 React 提供的<strong>组件级错误处理机制</strong>，它是一个<strong>只能用类组件实现</strong>的特殊组件，专门负责捕获其子组件树中抛出的运行时错误，并阻止错误向上冒泡导致整个应用崩溃，同时显示友好的UI（比如“加载失败，请重试”），而非让页面变成空白。</p>
+<h4 id="为什么需要-Error-Boundary？"><a href="#为什么需要-Error-Boundary？" class="headerlink" title="为什么需要 Error Boundary？"></a>为什么需要 Error Boundary？</h4><p>React 组件默认的错误行为是牵一发而动全身：如果某个子组件抛出未捕获的 JavaScript 错误（比如数据格式异常、渲染逻辑错误），<strong>整个组件树会被卸载</strong>，页面直接变成空白，用户体验极差。</p>
+<p>而 Error Boundary 能把错误限制在指定范围，其余组件仍正常渲染。</p>
+<h3 id="二、Error-Boundary-的核心特性-amp-适用范围"><a href="#二、Error-Boundary-的核心特性-amp-适用范围" class="headerlink" title="二、Error Boundary 的核心特性 &amp; 适用范围"></a>二、Error Boundary 的核心特性 &amp; 适用范围</h3><h4 id="1-能捕获的错误类型"><a href="#1-能捕获的错误类型" class="headerlink" title="1. 能捕获的错误类型"></a>1. 能捕获的错误类型</h4><p>Error Boundary 可以捕获其子组件树中以下场景的错误：</p>
+<ul>
+<li>组件渲染过程中的错误（比如 <code>render</code> 方法里的逻辑错误、数据渲染时 <code>undefined.xxx</code>）；</li>
+<li>生命周期方法中的错误（比如 <code>componentDidMount</code> 里的异步数据处理错误）；</li>
+<li>子组件的构造函数错误。</li>
+</ul>
+<h4 id="2-无法捕获的错误（关键坑点）"><a href="#2-无法捕获的错误（关键坑点）" class="headerlink" title="2. 无法捕获的错误（关键坑点）"></a>2. 无法捕获的错误（关键坑点）</h4><p>Error Boundary <strong>不是万能的</strong>，以下错误无法捕获，需用 <code>try/catch</code> 手动处理：</p>
+<ul>
+<li>事件处理函数中的错误（比如按钮点击回调、<code>onChange</code> 里的错误）；</li>
+<li>异步代码中的错误（比如 <code>setTimeout</code>、<code>fetch</code>/<code>axios</code> 回调、<code>Promise</code> 报错）；</li>
+<li>Error Boundary 自身抛出的错误；</li>
+<li>服务端渲染（SSR）中的错误；</li>
+<li>语法错误（比如代码拼写错误，属于编译时错误，运行前就会被发现）。</li>
+</ul>
+<h3 id="三、如何实现-Error-Boundary（完整示例）"><a href="#三、如何实现-Error-Boundary（完整示例）" class="headerlink" title="三、如何实现 Error Boundary（完整示例）"></a>三、如何实现 Error Boundary（完整示例）</h3><p>如之前提到的，Error Boundary <strong>必须用类组件实现</strong>（React 官方规定），核心是实现两个生命周期方法：</p>
+<ol>
+<li><code>static getDerivedStateFromError</code>：静态方法，捕获错误后更新组件状态，触发降级 UI 渲染；</li>
+<li><code>componentDidCatch</code>：实例方法，捕获错误详情（如错误信息、堆栈），用于日志上报（如 Sentry）。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">import React from &#39;react&#39;;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 通用 Error Boundary 组件（可复用）</span><br><span class="line">class ErrorBoundary extends React.Component &#123;</span><br><span class="line">  &#x2F;&#x2F; 初始化状态：是否出错、错误信息</span><br><span class="line">  state &#x3D; &#123;</span><br><span class="line">    hasError: false, &#x2F;&#x2F; 标记子组件是否出错</span><br><span class="line">    error: null,     &#x2F;&#x2F; 存储错误信息</span><br><span class="line">    errorInfo: null  &#x2F;&#x2F; 存储错误堆栈（用于排查）</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 【核心1】捕获子组件错误，更新状态触发降级UI</span><br><span class="line">  &#x2F;&#x2F; 静态方法，无this，返回新state</span><br><span class="line">  static getDerivedStateFromError(error) &#123;</span><br><span class="line">    return &#123; hasError: true &#125;; &#x2F;&#x2F; 标记出错，渲染兜底UI</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 【核心2】捕获错误详情，用于日志上报</span><br><span class="line">  &#x2F;&#x2F; 实例方法，可访问this，接收错误和错误信息</span><br><span class="line">  componentDidCatch(error, errorInfo) &#123;</span><br><span class="line">    &#x2F;&#x2F; 1. 打印错误（开发环境）</span><br><span class="line">    console.error(&#39;Error Boundary 捕获到错误：&#39;, error, errorInfo);</span><br><span class="line">    &#x2F;&#x2F; 2. 上报错误日志（生产环境，如Sentry、阿里云日志）</span><br><span class="line">    &#x2F;&#x2F; reportErrorToService(error, errorInfo);</span><br><span class="line">    &#x2F;&#x2F; 3. 存储错误信息（可选，用于显示错误详情）</span><br><span class="line">    this.setState(&#123; error, errorInfo &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 重置错误状态（可选，比如“重试”功能）</span><br><span class="line">  resetError &#x3D; () &#x3D;&gt; &#123;</span><br><span class="line">    this.setState(&#123; hasError: false, error: null, errorInfo: null &#125;);</span><br><span class="line">    &#x2F;&#x2F; 若需要重新加载子组件，可触发父组件重新渲染（比如传key）</span><br><span class="line">    this.props.onReset?.();</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    &#x2F;&#x2F; 1. 子组件出错：显示兜底UI</span><br><span class="line">    if (this.state.hasError) &#123;</span><br><span class="line">      return (</span><br><span class="line">        &lt;div style&#x3D;&#123;&#123; padding: &#39;20px&#39;, textAlign: &#39;center&#39;, border: &#39;1px solid #ff4444&#39;, borderRadius: &#39;4px&#39; &#125;&#125;&gt;</span><br><span class="line">          &lt;h3&gt;😵 组件加载失败&lt;&#x2F;h3&gt;</span><br><span class="line">          &lt;p&gt;抱歉，该模块出现异常，请稍后重试&lt;&#x2F;p&gt;</span><br><span class="line">          &#123;&#x2F;* 开发环境可显示错误详情，生产环境隐藏 *&#x2F;&#125;</span><br><span class="line">          &#123;process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &#39;development&#39; &amp;&amp; (</span><br><span class="line">            &lt;details style&#x3D;&#123;&#123; marginTop: &#39;10px&#39;, textAlign: &#39;left&#39; &#125;&#125;&gt;</span><br><span class="line">              &lt;summary&gt;错误详情（仅开发环境显示）&lt;&#x2F;summary&gt;</span><br><span class="line">              &lt;pre style&#x3D;&#123;&#123; color: &#39;#ff4444&#39; &#125;&#125;&gt;&#123;this.state.error?.toString()&#125;&lt;&#x2F;pre&gt;</span><br><span class="line">              &lt;pre style&#x3D;&#123;&#123; color: &#39;#ff4444&#39; &#125;&#125;&gt;&#123;this.state.errorInfo?.componentStack&#125;&lt;&#x2F;pre&gt;</span><br><span class="line">            &lt;&#x2F;details&gt;</span><br><span class="line">          )&#125;</span><br><span class="line">          &#123;&#x2F;* 重试按钮 *&#x2F;&#125;</span><br><span class="line">          &lt;button </span><br><span class="line">            onClick&#x3D;&#123;this.resetError&#125; </span><br><span class="line">            style&#x3D;&#123;&#123; marginTop: &#39;10px&#39;, padding: &#39;8px 16px&#39;, background: &#39;#0088ff&#39;, color: &#39;white&#39;, border: &#39;none&#39;, borderRadius: &#39;4px&#39; &#125;&#125;</span><br><span class="line">          &gt;</span><br><span class="line">            点击重试</span><br><span class="line">          &lt;&#x2F;button&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">      );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 2. 子组件正常：渲染原内容</span><br><span class="line">    return this.props.children;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">export default ErrorBoundary;</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、如何使用-Error-Boundary"><a href="#四、如何使用-Error-Boundary" class="headerlink" title="四、如何使用 Error Boundary"></a>四、如何使用 Error Boundary</h3><p>只需把需要保护的组件<strong>包裹</strong>在 Error Boundary 组件中即可，可灵活控制保护粒度（单个组件/整个页面/整个应用）：</p>
+<h4 id="示例-1：保护单个易出错组件（如图表）"><a href="#示例-1：保护单个易出错组件（如图表）" class="headerlink" title="示例 1：保护单个易出错组件（如图表）"></a>示例 1：保护单个易出错组件（如图表）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import ErrorBoundary from &#39;.&#x2F;ErrorBoundary&#39;;</span><br><span class="line">import ChartComponent from &#39;.&#x2F;ChartComponent&#39;; &#x2F;&#x2F; 可能因数据异常报错的组件</span><br><span class="line"></span><br><span class="line">const Dashboard &#x3D; () &#x3D;&gt; &#123;</span><br><span class="line">  return (</span><br><span class="line">    &lt;div className&#x3D;&quot;dashboard&quot;&gt;</span><br><span class="line">      &lt;h2&gt;数据看板&lt;&#x2F;h2&gt;</span><br><span class="line">      &#123;&#x2F;* 仅保护图表组件，其余部分不受影响 *&#x2F;&#125;</span><br><span class="line">      &lt;ErrorBoundary&gt;</span><br><span class="line">        &lt;ChartComponent &#x2F;&gt;</span><br><span class="line">      &lt;&#x2F;ErrorBoundary&gt;</span><br><span class="line">      &#123;&#x2F;* 其他组件正常渲染 *&#x2F;&#125;</span><br><span class="line">      &lt;TableComponent &#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="示例-2：保护整个页面"><a href="#示例-2：保护整个页面" class="headerlink" title="示例 2：保护整个页面"></a>示例 2：保护整个页面</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">import ErrorBoundary from &#39;.&#x2F;ErrorBoundary&#39;;</span><br><span class="line"></span><br><span class="line">const UserPage &#x3D; () &#x3D;&gt; &#123;</span><br><span class="line">  return (</span><br><span class="line">    &lt;ErrorBoundary&gt;</span><br><span class="line">      &lt;div className&#x3D;&quot;user-page&quot;&gt;</span><br><span class="line">        &lt;UserInfo &#x2F;&gt;</span><br><span class="line">        &lt;UserOrderList &#x2F;&gt;</span><br><span class="line">        &lt;UserSetting &#x2F;&gt;</span><br><span class="line">      &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;&#x2F;ErrorBoundary&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="示例-3：处理-Error-Boundary-捕获不了的错误（事件处理-异步）"><a href="#示例-3：处理-Error-Boundary-捕获不了的错误（事件处理-异步）" class="headerlink" title="示例 3：处理 Error Boundary 捕获不了的错误（事件处理/异步）"></a>示例 3：处理 Error Boundary 捕获不了的错误（事件处理/异步）</h4><p>对于 Error Boundary 无法捕获的场景（如按钮点击回调、异步请求），需手动用 <code>try/catch</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">const ButtonComponent &#x3D; () &#x3D;&gt; &#123;</span><br><span class="line">  const handleClick &#x3D; async () &#x3D;&gt; &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">      &#x2F;&#x2F; 异步请求 + 可能出错的逻辑</span><br><span class="line">      const res &#x3D; await fetch(&#39;&#x2F;api&#x2F;data&#39;);</span><br><span class="line">      const data &#x3D; await res.json();</span><br><span class="line">      if (!data) throw new Error(&#39;数据为空&#39;);</span><br><span class="line">    &#125; catch (error) &#123;</span><br><span class="line">      &#x2F;&#x2F; 手动捕获并处理错误</span><br><span class="line">      console.error(&#39;点击事件错误：&#39;, error);</span><br><span class="line">      &#x2F;&#x2F; 显示友好提示</span><br><span class="line">      alert(&#39;操作失败，请重试&#39;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  return &lt;button onClick&#x3D;&#123;handleClick&#125;&gt;提交&lt;&#x2F;button&gt;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><ol>
+<li>Error Boundary ，类组件专属，用于捕获子组件的运行时渲染错误，防止应用整体崩溃；</li>
+<li>捕获错误 → 显示兜底 UI → 记录错误日志，无法捕获事件处理/异步代码中的错误（需 <code>try/catch</code>）；</li>
+<li>按需包裹易出错的组件（如第三方组件、数据渲染组件），粒度不宜过大（比如别用一个 Error Boundary 包裹整个应用，否则一个小错误会让整个应用显示出错UI）；</li>
+<li>React 18 提供了实验性的 <code>useErrorBoundary</code> Hook，但未纳入稳定版，生产环境仍推荐类组件实现的 Error Boundary。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/04/03/React%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6/" rel="next" title="React合成事件">
+                <i class="fa fa-chevron-left"></i> React合成事件
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">金金金</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、Error-Boundary-是什么？"><span class="nav-number">1.</span> <span class="nav-text">一、Error Boundary 是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么需要-Error-Boundary？"><span class="nav-number">1.1.</span> <span class="nav-text">为什么需要 Error Boundary？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Error-Boundary-的核心特性-amp-适用范围"><span class="nav-number">2.</span> <span class="nav-text">二、Error Boundary 的核心特性 &amp; 适用范围</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-能捕获的错误类型"><span class="nav-number">2.1.</span> <span class="nav-text">1. 能捕获的错误类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-无法捕获的错误（关键坑点）"><span class="nav-number">2.2.</span> <span class="nav-text">2. 无法捕获的错误（关键坑点）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、如何实现-Error-Boundary（完整示例）"><span class="nav-number">3.</span> <span class="nav-text">三、如何实现 Error Boundary（完整示例）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、如何使用-Error-Boundary"><span class="nav-number">4.</span> <span class="nav-text">四、如何使用 Error Boundary</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#示例-1：保护单个易出错组件（如图表）"><span class="nav-number">4.1.</span> <span class="nav-text">示例 1：保护单个易出错组件（如图表）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#示例-2：保护整个页面"><span class="nav-number">4.2.</span> <span class="nav-text">示例 2：保护整个页面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#示例-3：处理-Error-Boundary-捕获不了的错误（事件处理-异步）"><span class="nav-number">4.3.</span> <span class="nav-text">示例 3：处理 Error Boundary 捕获不了的错误（事件处理&#x2F;异步）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、总结"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">金金金</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

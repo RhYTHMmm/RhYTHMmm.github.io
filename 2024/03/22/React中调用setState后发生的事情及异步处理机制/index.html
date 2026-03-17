@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="React中调用setState后发生的事情及异步处理机制在React中，setState 是用于更新组件状态（state）、触发UI重新渲染的核心API。调用 setState 后并非立即更新state和DOM，而是经过一套「异步调度+批量处理」的流程，其异步机制的核心目的是优化性能、减少不必要的重渲染。以下分两部分详细解析： 一、调用setState后发生的完整流程无论是类组件还是函数组件（通">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React中调用setState后发生的事情及异步处理机制">
+<meta property="og:url" content="http://yoursite.com/2024/03/22/React%E4%B8%AD%E8%B0%83%E7%94%A8setState%E5%90%8E%E5%8F%91%E7%94%9F%E7%9A%84%E4%BA%8B%E6%83%85%E5%8F%8A%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="叶子不能吃哦">
+<meta property="og:description" content="React中调用setState后发生的事情及异步处理机制在React中，setState 是用于更新组件状态（state）、触发UI重新渲染的核心API。调用 setState 后并非立即更新state和DOM，而是经过一套「异步调度+批量处理」的流程，其异步机制的核心目的是优化性能、减少不必要的重渲染。以下分两部分详细解析： 一、调用setState后发生的完整流程无论是类组件还是函数组件（通">
+<meta property="article:published_time" content="2024-03-22T08:10:51.000Z">
+<meta property="article:modified_time" content="2026-03-17T08:11:50.192Z">
+<meta property="article:author" content="金金金">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2024/03/22/React中调用setState后发生的事情及异步处理机制/"/>
+
+
+
+
+
+  <title>React中调用setState后发生的事情及异步处理机制 | 叶子不能吃哦</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">叶子不能吃哦</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/03/22/React%E4%B8%AD%E8%B0%83%E7%94%A8setState%E5%90%8E%E5%8F%91%E7%94%9F%E7%9A%84%E4%BA%8B%E6%83%85%E5%8F%8A%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="金金金">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="叶子不能吃哦">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React中调用setState后发生的事情及异步处理机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-03-22T16:10:51+08:00">
+                2024-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="React中调用setState后发生的事情及异步处理机制"><a href="#React中调用setState后发生的事情及异步处理机制" class="headerlink" title="React中调用setState后发生的事情及异步处理机制"></a>React中调用setState后发生的事情及异步处理机制</h1><p>在React中，<code>setState</code> 是用于更新组件状态（state）、触发UI重新渲染的核心API。调用 <code>setState</code> 后并非立即更新state和DOM，而是经过一套「异步调度+批量处理」的流程，其异步机制的核心目的是<strong>优化性能、减少不必要的重渲染</strong>。以下分两部分详细解析：</p>
+<h2 id="一、调用setState后发生的完整流程"><a href="#一、调用setState后发生的完整流程" class="headerlink" title="一、调用setState后发生的完整流程"></a>一、调用setState后发生的完整流程</h2><p>无论是类组件还是函数组件（通过useState的更新函数间接调用），调用setState后，React会按以下步骤执行，核心分为「更新入队→批量合并→调度渲染→DOM更新」四个阶段：</p>
+<h3 id="1-接收更新请求，将更新入队"><a href="#1-接收更新请求，将更新入队" class="headerlink" title="1. 接收更新请求，将更新入队"></a>1. 接收更新请求，将更新入队</h3><p>调用 <code>setState(updater, callback)</code> 时，React不会立即修改state，而是先将本次更新请求（可以是对象形式 <code>{key: value}</code> 或函数形式 <code>(prevState) =&gt; newState</code>）加入「更新队列」。</p>
+<p>这里的关键：<strong>更新队列会暂存同一轮事件循环中的所有setState请求</strong>，而非立即执行，这是异步处理的基础。</p>
+<h3 id="2-合并更新请求（批量处理）"><a href="#2-合并更新请求（批量处理）" class="headerlink" title="2. 合并更新请求（批量处理）"></a>2. 合并更新请求（批量处理）</h3><p>React会对更新队列中的请求进行「合并优化」—— 若同一轮事件循环中多次调用setState修改同一个state字段，只会保留最后一次的更新，避免多次修改导致的重复渲染。</p>
+<p>示例（类组件）：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 多次调用setState，最终只会合并为一次更新</span></span><br><span class="line"><span class="keyword">this</span>.setState(&#123; <span class="attr">count</span>: <span class="keyword">this</span>.state.count + <span class="number">1</span> &#125;);</span><br><span class="line"><span class="keyword">this</span>.setState(&#123; <span class="attr">count</span>: <span class="keyword">this</span>.state.count + <span class="number">1</span> &#125;);</span><br><span class="line"><span class="keyword">this</span>.setState(&#123; <span class="attr">count</span>: <span class="keyword">this</span>.state.count + <span class="number">1</span> &#125;);</span><br><span class="line"><span class="comment">// 最终count只加1，而非3（合并后只执行最后一次更新）</span></span><br></pre></td></tr></table></figure>
+
+<p>注：函数形式的setState（<code>setState(prev =&gt; prev + 1)</code>）可以避免合并导致的更新丢失，因为它接收的是上一次的最新state，而非当前渲染周期的state。</p>
+<h3 id="3-调度重渲染（异步核心环节）"><a href="#3-调度重渲染（异步核心环节）" class="headerlink" title="3. 调度重渲染（异步核心环节）"></a>3. 调度重渲染（异步核心环节）</h3><p>React会通过「调度器（Scheduler）」判断更新的优先级，将重渲染任务放入「宏任务/微任务队列」，等待主线程空闲时执行（避免阻塞用户交互、滚动等关键操作）。</p>
+<p>这里的「异步」并非真正的异步（不是通过setTimeout、Promise实现），而是React内部的「任务调度机制」—— 优先保证主线程的同步操作（如用户输入、事件回调）完成后，再执行重渲染。</p>
+<h3 id="4-执行重渲染，更新DOM"><a href="#4-执行重渲染，更新DOM" class="headerlink" title="4. 执行重渲染，更新DOM"></a>4. 执行重渲染，更新DOM</h3><p>当主线程空闲时，React会从更新队列中取出合并后的更新，修改组件的state，然后触发「 reconciliation（协调）」过程：对比更新前后的虚拟DOM，找出差异（diff算法），只更新需要修改的DOM节点（而非全量更新），最终完成UI渲染。</p>
+<h3 id="5-执行回调函数（可选）"><a href="#5-执行回调函数（可选）" class="headerlink" title="5. 执行回调函数（可选）"></a>5. 执行回调函数（可选）</h3><p>若setState传入了第二个参数（回调函数），则会在DOM更新完成后执行，此时可以获取到最新的state和DOM。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.setState(</span><br><span class="line">  &#123; <span class="attr">count</span>: <span class="keyword">this</span>.state.count + <span class="number">1</span> &#125;,</span><br><span class="line">  () =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"DOM已更新，最新count："</span>, <span class="keyword">this</span>.state.count); <span class="comment">// 能获取到最新值</span></span><br><span class="line">  &#125;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、setState的异步处理机制（核心解析）"><a href="#二、setState的异步处理机制（核心解析）" class="headerlink" title="二、setState的异步处理机制（核心解析）"></a>二、setState的异步处理机制（核心解析）</h2><p>很多开发者会疑惑：「为什么调用setState后，立即打印state得不到最新值？」—— 这正是因为setState的异步处理机制，核心原因的是「React为了性能优化，将更新批量调度，延迟执行」。</p>
+<h3 id="1-为什么setState是异步的？（核心目的）"><a href="#1-为什么setState是异步的？（核心目的）" class="headerlink" title="1. 为什么setState是异步的？（核心目的）"></a>1. 为什么setState是异步的？（核心目的）</h3><p>React设计setState为异步，核心是解决「频繁更新导致的性能问题」：</p>
+<ul>
+<li>避免频繁重渲染：若每次调用setState都立即更新state和DOM，当同一事件中多次调用setState（如表单输入、按钮点击），会导致多次重渲染，严重影响性能；</li>
+<li>保证UI一致性：异步更新可以确保组件的state和DOM同步更新，避免出现「state已更新但DOM未更新」的中间状态，减少UI错乱；</li>
+<li>优先用户交互：将重渲染任务延迟到主线程空闲时执行，避免阻塞用户输入、滚动、点击等关键操作，提升应用流畅度。</li>
+</ul>
+<h3 id="2-异步处理的实现原理"><a href="#2-异步处理的实现原理" class="headerlink" title="2. 异步处理的实现原理"></a>2. 异步处理的实现原理</h3><p>React的异步更新依赖「内部调度机制」和「批量更新策略」，不同React版本（18前后）有细微差异，但核心逻辑一致：</p>
+<ul>
+<li>React内部维护一个「更新队列」，所有setState请求都会被加入队列，而非立即执行；</li>
+<li>React会在「当前事件循环的同步代码执行完毕后」，统一处理更新队列中的所有请求，合并后执行一次重渲染；</li>
+<li>React 18之前：仅在「React合成事件（如onClick、onChange）」和「生命周期函数」中开启批量更新，异步代码（setTimeout、Promise）中不批量更新；</li>
+<li>React 18之后：开启「自动批处理（Automatic Batching）」，无论在合成事件、异步代码（setTimeout、Promise）中，都能自动合并更新，进一步优化性能。</li>
+</ul>
+<h3 id="3-异步机制的关键误区（必避坑）"><a href="#3-异步机制的关键误区（必避坑）" class="headerlink" title="3. 异步机制的关键误区（必避坑）"></a>3. 异步机制的关键误区（必避坑）</h3><h4 id="误区1：setState是“真正的异步”"><a href="#误区1：setState是“真正的异步”" class="headerlink" title="误区1：setState是“真正的异步”"></a>误区1：setState是“真正的异步”</h4><p>错：setState并非通过setTimeout、Promise等异步API实现，而是React内部的「同步入队、延迟执行」。在React合成事件中，setState的更新会被批量延迟，而在原生事件（如addEventListener绑定的事件）、setTimeout中，React 18之前会同步执行更新（18之后仍会批量处理）。</p>
+<h4 id="误区2：调用setState后，state一定不会立即更新"><a href="#误区2：调用setState后，state一定不会立即更新" class="headerlink" title="误区2：调用setState后，state一定不会立即更新"></a>误区2：调用setState后，state一定不会立即更新</h4><p>错：有两种特殊场景，setState会“同步”更新（React 18之前）：</p>
+<ul>
+<li>在原生DOM事件回调中（如document.addEventListener(‘click’, () =&gt; { … })）；</li>
+<li>在setTimeout、setInterval等异步代码中。</li>
+</ul>
+<p>示例（React 18之前）：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原生事件中，setState同步更新</span></span><br><span class="line"><span class="built_in">document</span>.addEventListener(<span class="string">'click'</span>, () =&gt; &#123;</span><br><span class="line">  <span class="keyword">this</span>.setState(&#123; <span class="attr">count</span>: <span class="keyword">this</span>.state.count + <span class="number">1</span> &#125;);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.state.count); <span class="comment">// 能获取到最新值（同步更新）</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>React 18之后，以上场景也会被自动批处理，setState仍为异步。</p>
+<h4 id="误区3：可以通过this-state直接获取最新值"><a href="#误区3：可以通过this-state直接获取最新值" class="headerlink" title="误区3：可以通过this.state直接获取最新值"></a>误区3：可以通过this.state直接获取最新值</h4><p>错：由于setState是异步的，调用setState后，当前渲染周期的this.state（类组件）或useState返回的state（函数组件）仍然是旧值，只有在重渲染完成后，才能获取到最新值。</p>
+<p>正确获取最新值的3种方式：</p>
+<ol>
+<li>使用setState的回调函数（第二个参数）；</li>
+<li>使用函数形式的setState（接收prevState参数）；</li>
+<li>在useEffect（函数组件）或componentDidUpdate（类组件）中获取（监听state变化）。</li>
+</ol>
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><ol>
+<li><p>调用setState后的流程：<strong>更新入队 → 合并更新 → 调度重渲染 → DOM更新 → 执行回调</strong>；</p>
+</li>
+<li><p>异步处理机制核心：React通过「更新队列+批量合并+任务调度」，延迟执行重渲染，避免频繁更新，优先保证用户交互流畅；</p>
+</li>
+<li><p>关键注意：setState并非真正的异步，而是React内部的延迟调度；获取最新state需通过回调、函数式setState或生命周期/useEffect；</p>
+</li>
+<li><p>React 18优化：自动批处理覆盖所有场景，进一步减少重渲染，提升性能。</p>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/03/09/%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/" rel="next" title="关于事件循环的笔记">
+                <i class="fa fa-chevron-left"></i> 关于事件循环的笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/03/25/React18%E7%9A%84%E6%96%B0%E7%89%B9%E6%80%A7/" rel="prev" title="React18的新特性">
+                React18的新特性 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">金金金</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#React中调用setState后发生的事情及异步处理机制"><span class="nav-number">1.</span> <span class="nav-text">React中调用setState后发生的事情及异步处理机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、调用setState后发生的完整流程"><span class="nav-number">1.1.</span> <span class="nav-text">一、调用setState后发生的完整流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-接收更新请求，将更新入队"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. 接收更新请求，将更新入队</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-合并更新请求（批量处理）"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. 合并更新请求（批量处理）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-调度重渲染（异步核心环节）"><span class="nav-number">1.1.3.</span> <span class="nav-text">3. 调度重渲染（异步核心环节）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-执行重渲染，更新DOM"><span class="nav-number">1.1.4.</span> <span class="nav-text">4. 执行重渲染，更新DOM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-执行回调函数（可选）"><span class="nav-number">1.1.5.</span> <span class="nav-text">5. 执行回调函数（可选）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、setState的异步处理机制（核心解析）"><span class="nav-number">1.2.</span> <span class="nav-text">二、setState的异步处理机制（核心解析）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-为什么setState是异步的？（核心目的）"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 为什么setState是异步的？（核心目的）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-异步处理的实现原理"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 异步处理的实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-异步机制的关键误区（必避坑）"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 异步机制的关键误区（必避坑）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#误区1：setState是“真正的异步”"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">误区1：setState是“真正的异步”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#误区2：调用setState后，state一定不会立即更新"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">误区2：调用setState后，state一定不会立即更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#误区3：可以通过this-state直接获取最新值"><span class="nav-number">1.2.3.3.</span> <span class="nav-text">误区3：可以通过this.state直接获取最新值</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、总结"><span class="nav-number">1.3.</span> <span class="nav-text">三、总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">金金金</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

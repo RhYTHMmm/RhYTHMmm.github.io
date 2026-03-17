@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、React 合成事件（SyntheticEvent）是什么？React 合成事件是 React 对浏览器原生 DOM 事件的跨浏览器封装层：  不同浏览器的原生事件（如 click、change）存在兼容差异（比如 IE 的 event 对象获取方式、事件类型命名），React 把这些差异抹平，提供了一套统一、跨浏览器的事件接口； 合成事件模拟了原生事件的所有核心特性（如 target、sto">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React合成事件">
+<meta property="og:url" content="http://yoursite.com/2024/04/03/React%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6/index.html">
+<meta property="og:site_name" content="叶子不能吃哦">
+<meta property="og:description" content="一、React 合成事件（SyntheticEvent）是什么？React 合成事件是 React 对浏览器原生 DOM 事件的跨浏览器封装层：  不同浏览器的原生事件（如 click、change）存在兼容差异（比如 IE 的 event 对象获取方式、事件类型命名），React 把这些差异抹平，提供了一套统一、跨浏览器的事件接口； 合成事件模拟了原生事件的所有核心特性（如 target、sto">
+<meta property="article:published_time" content="2024-04-03T10:17:41.000Z">
+<meta property="article:modified_time" content="2026-03-17T08:18:56.774Z">
+<meta property="article:author" content="金金金">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2024/04/03/React合成事件/"/>
+
+
+
+
+
+  <title>React合成事件 | 叶子不能吃哦</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">叶子不能吃哦</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/04/03/React%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="金金金">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="叶子不能吃哦">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React合成事件</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-04-03T18:17:41+08:00">
+                2024-04-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、React-合成事件（SyntheticEvent）是什么？"><a href="#一、React-合成事件（SyntheticEvent）是什么？" class="headerlink" title="一、React 合成事件（SyntheticEvent）是什么？"></a>一、React 合成事件（SyntheticEvent）是什么？</h3><p>React 合成事件是 React 对<strong>浏览器原生 DOM 事件</strong>的<strong>跨浏览器封装层</strong>：</p>
+<ul>
+<li>不同浏览器的原生事件（如 <code>click</code>、<code>change</code>）存在兼容差异（比如 IE 的 <code>event</code> 对象获取方式、事件类型命名），React 把这些差异抹平，提供了一套<strong>统一、跨浏览器的事件接口</strong>；</li>
+<li>合成事件模拟了原生事件的所有核心特性（如 <code>target</code>、<code>stopPropagation()</code>、<code>preventDefault()</code>），用法和原生事件几乎一致，但底层做了性能优化（事件委托）和兼容处理。</li>
+</ul>
+<p><strong>核心定义</strong>： </p>
+<p>SyntheticEvent（合成事件）是 React 自定义的事件对象，完全兼容 W3C 标准，封装了浏览器原生事件的行为，同时实现了「事件委托、跨浏览器兼容、性能优化」等特性，是 React 组件事件处理的核心机制。</p>
+<h3 id="二、合成事件的核心特性"><a href="#二、合成事件的核心特性" class="headerlink" title="二、合成事件的核心特性"></a>二、合成事件的核心特性</h3><h4 id="1-跨浏览器兼容性"><a href="#1-跨浏览器兼容性" class="headerlink" title="1. 跨浏览器兼容性"></a>1. 跨浏览器兼容性</h4><p>React 替开发者处理了不同浏览器的事件兼容问题，比如：</p>
+<ul>
+<li>IE 浏览器没有 <code>mouseenter</code>/<code>mouseleave</code> 事件，React 合成事件层模拟了这些事件；</li>
+<li>原生事件的 <code>event</code> 对象在不同浏览器中属性不同（如 IE 用 <code>event.srcElement</code>，标准浏览器用 <code>event.target</code>），合成事件统一为 <code>e.target</code>；</li>
+<li>无需关注浏览器的事件绑定方式（如 <code>addEventListener</code> vs <code>attachEvent</code>），只需写 React 统一的 <code>onClick</code>/<code>onChange</code> 等。</li>
+</ul>
+<h4 id="2-事件委托"><a href="#2-事件委托" class="headerlink" title="2. 事件委托"></a>2. 事件委托</h4><p>React 不会把事件直接绑定到具体的 DOM 元素上（比如按钮、输入框），而是采用事件委托机制：</p>
+<ul>
+<li><strong>React 17 之前</strong>：所有合成事件都委托到 <code>document</code> 节点上；</li>
+<li><strong>React 17 及之后</strong>：委托到 React 应用的根节点（如 <code>#root</code>），避免和其他第三方库的事件冲突。</li>
+</ul>
+<p><strong>为什么这么做？</strong></p>
+<p>如果页面有 100 个按钮，每个按钮绑定 <code>onClick</code>，原生方式会创建 100 个事件监听器，占用大量内存；而合成事件只在根节点绑定 1 个监听器，通过事件冒泡找到对应的组件处理函数，大幅减少内存占用，提升性能。</p>
+<h4 id="3-与原生事件高度相似"><a href="#3-与原生事件高度相似" class="headerlink" title="3. 与原生事件高度相似"></a>3. 与原生事件高度相似</h4><p>合成事件对象拥有和原生 <code>Event</code> 对象几乎一样的属性和方法，无需额外学习：</p>
+<table>
+<thead>
+<tr>
+<th align="left"><strong>核心属性/方法</strong></th>
+<th align="left"><strong>作用</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>e.target</code></td>
+<td align="left">触发事件的原始 DOM 元素</td>
+</tr>
+<tr>
+<td align="left"><code>e.currentTarget</code></td>
+<td align="left">绑定事件的组件 DOM 元素</td>
+</tr>
+<tr>
+<td align="left"><code>e.stopPropagation()</code></td>
+<td align="left">阻止合成事件的冒泡</td>
+</tr>
+<tr>
+<td align="left"><code>e.preventDefault()</code></td>
+<td align="left">阻止事件的默认行为（如 a 标签跳转、表单提交）</td>
+</tr>
+<tr>
+<td align="left"><code>e.nativeEvent</code></td>
+<td align="left">指向底层的原生事件对象（可访问原生事件的所有属性）</td>
+</tr>
+</tbody></table>
+<h4 id="4-事件池（React-17-移除）"><a href="#4-事件池（React-17-移除）" class="headerlink" title="4. 事件池（React 17 移除）"></a>4. 事件池（React 17 移除）</h4><p>React 17 之前，为了进一步优化性能，React 会复用合成事件对象：事件处理完成后，会清空合成事件的所有属性，放回事件池供后续复用。 </p>
+<p><strong>坑点</strong>：异步访问合成事件属性会拿到 <code>null</code>，需要调用 <code>e.persist()</code> 保留属性：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; React 17 前的坑</span><br><span class="line">const handleClick &#x3D; (e) &#x3D;&gt; &#123;</span><br><span class="line">  &#x2F;&#x2F; 异步访问（如 setTimeout）</span><br><span class="line">  setTimeout(() &#x3D;&gt; &#123;</span><br><span class="line">    console.log(e.target); &#x2F;&#x2F; 17前：null；17后：正常显示</span><br><span class="line">  &#125;, 1000);</span><br><span class="line">  &#x2F;&#x2F; 17前解决：调用persist()保留事件对象</span><br><span class="line">  e.persist();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>React 17 移除了事件池，无需再用 <code>e.persist()</code>，异步访问合成事件属性完全正常。</p>
+<p>现代浏览器垃圾回收（GC）效率提升，事件池的性能收益可忽略 。</p>
+<h3 id="三、合成事件的工作流程"><a href="#三、合成事件的工作流程" class="headerlink" title="三、合成事件的工作流程"></a>三、合成事件的工作流程</h3><p>以点击按钮触发 <code>onClick</code> 为例：</p>
+<ol>
+<li><strong>注册阶段</strong>：React 组件声明 <code>onClick={handleClick}</code> 时，React 不会立即绑定到按钮 DOM，而是在根节点注册一个统一的原生 <code>click</code> 监听器；</li>
+<li><strong>触发阶段</strong>：用户点击按钮，原生 <code>click</code> 事件冒泡到根节点；</li>
+<li><strong>封装阶段</strong>：React 捕获到原生事件，创建对应的合成事件对象（SyntheticEvent）；</li>
+<li><strong>分发阶段</strong>：React 根据组件树的层级，找到对应的 <code>handleClick</code> 函数，把合成事件对象传入并执行；</li>
+<li><strong>清理阶段</strong>（17 前）：事件处理完成后，清空合成事件对象，放回事件池。</li>
+</ol>
+<h3 id="四、合成事件-vs-原生事件"><a href="#四、合成事件-vs-原生事件" class="headerlink" title="四、合成事件 vs 原生事件"></a>四、合成事件 vs 原生事件</h3><table>
+<thead>
+<tr>
+<th align="left"><strong>对比维度</strong></th>
+<th align="left"><strong>React 合成事件</strong></th>
+<th align="left"><strong>浏览器原生事件</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">绑定位置</td>
+<td align="left">委托到根节点（17+）/document</td>
+<td align="left">直接绑定到具体 DOM 元素</td>
+</tr>
+<tr>
+<td align="left">兼容性</td>
+<td align="left">跨浏览器统一接口</td>
+<td align="left">不同浏览器存在差异</td>
+</tr>
+<tr>
+<td align="left">事件对象</td>
+<td align="left">SyntheticEvent（可访问 nativeEvent）</td>
+<td align="left">原生 Event 对象</td>
+</tr>
+<tr>
+<td align="left">阻止冒泡</td>
+<td align="left"><code>e.stopPropagation()</code> 仅阻止合成事件冒泡，原生冒泡仍会触发</td>
+<td align="left"><code>e.stopPropagation()</code> 阻止所有冒泡</td>
+</tr>
+<tr>
+<td align="left">性能</td>
+<td align="left">事件委托 + 事件池（17前），性能优</td>
+<td align="left">每个元素绑定监听器，性能差</td>
+</tr>
+</tbody></table>
+<h4 id="关键坑点：合成事件的冒泡无法阻止原生事件"><a href="#关键坑点：合成事件的冒泡无法阻止原生事件" class="headerlink" title="关键坑点：合成事件的冒泡无法阻止原生事件"></a>关键坑点：合成事件的冒泡无法阻止原生事件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">function Parent() &#123;</span><br><span class="line">  &#x2F;&#x2F; 1. 合成事件：父组件 onClick</span><br><span class="line">  const handleParentClick &#x3D; () &#x3D;&gt; console.log(&#39;合成事件：父组件点击&#39;);</span><br><span class="line">  </span><br><span class="line">  &#x2F;&#x2F; 2. 原生事件：父组件 DOM 绑定 click</span><br><span class="line">  useEffect(() &#x3D;&gt; &#123;</span><br><span class="line">    const parentDom &#x3D; document.getElementById(&#39;parent&#39;);</span><br><span class="line">    parentDom.addEventListener(&#39;click&#39;, () &#x3D;&gt; console.log(&#39;原生事件：父组件点击&#39;));</span><br><span class="line">    return () &#x3D;&gt; parentDom.removeEventListener(&#39;click&#39;, () &#x3D;&gt; console.log(&#39;原生事件：父组件点击&#39;));</span><br><span class="line">  &#125;, []);</span><br><span class="line"></span><br><span class="line">  return (</span><br><span class="line">    &lt;div id&#x3D;&quot;parent&quot; onClick&#x3D;&#123;handleParentClick&#125;&gt;</span><br><span class="line">      &lt;Child &#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Child() &#123;</span><br><span class="line">  const handleChildClick &#x3D; (e) &#x3D;&gt; &#123;</span><br><span class="line">    &#x2F;&#x2F; 阻止合成事件冒泡 → 父组件合成事件不会触发</span><br><span class="line">    e.stopPropagation();</span><br><span class="line">    console.log(&#39;合成事件：子组件点击&#39;);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  return &lt;button onClick&#x3D;&#123;handleChildClick&#125;&gt;子按钮&lt;&#x2F;button&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>点击子按钮，输出结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">合成事件：子组件点击</span><br><span class="line">原生事件：父组件点击</span><br></pre></td></tr></table></figure>
+
+<p>原因：<code>e.stopPropagation()</code> 仅阻止 React 模拟的合成事件冒泡，原生 DOM 事件的冒泡仍会触发根节点的原生监听器。 </p>
+<p><strong>解决方法</strong>：如需完全阻止，访问原生事件对象并调用 <code>stopImmediatePropagation()</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">const handleChildClick &#x3D; (e) &#x3D;&gt; &#123;</span><br><span class="line">  e.nativeEvent.stopImmediatePropagation(); &#x2F;&#x2F; 阻止所有冒泡（合成+原生）</span><br><span class="line">  console.log(&#39;合成事件：子组件点击&#39;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="五、合成事件的使用注意事项"><a href="#五、合成事件的使用注意事项" class="headerlink" title="五、合成事件的使用注意事项"></a>五、合成事件的使用注意事项</h3><ol>
+<li><strong>不支持部分原生全局事件</strong>：如 <code>resize</code>、<code>scroll</code>、<code>load</code> 等全局事件，无法通过合成事件绑定，需手动用 <code>useEffect</code> 绑定到 <code>window</code>/<code>document</code>：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">useEffect(() &#x3D;&gt; &#123;</span><br><span class="line">  const handleResize &#x3D; () &#x3D;&gt; console.log(&#39;窗口大小变化&#39;);</span><br><span class="line">  window.addEventListener(&#39;resize&#39;, handleResize);</span><br><span class="line">  return () &#x3D;&gt; window.removeEventListener(&#39;resize&#39;, handleResize);</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>合成事件的执行时机</strong>：React 合成事件在「原生事件冒泡阶段」执行，如需在捕获阶段执行，需给事件名加 <code>Capture</code> 后缀（如 <code>onClickCapture</code>）：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;button onClickCapture&#x3D;&#123;handleClick&#125;&gt;点击&lt;&#x2F;button&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>避免合成事件与原生事件混用</strong>：混用容易导致冒泡/执行顺序问题，优先用合成事件，特殊场景（如第三方库）再用原生事件。</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>React 合成事件是对原生 DOM 事件的跨浏览器封装，核心解决「兼容问题」和「性能问题」；</li>
+<li>事件委托到根节点，减少 DOM 事件监听器数量；</li>
+<li>合成事件的 <code>stopPropagation()</code> 仅阻止 React 内部冒泡，无法阻止原生事件冒泡；</li>
+<li>日常开发优先用合成事件（<code>onClick</code>/<code>onChange</code> 等），全局事件（<code>resize</code>）/第三方库交互场景再用原生事件。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/03/25/React18%E7%9A%84%E6%96%B0%E7%89%B9%E6%80%A7/" rel="next" title="React18的新特性">
+                <i class="fa fa-chevron-left"></i> React18的新特性
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/04/09/%E5%85%B3%E4%BA%8EReact-Error-Boundary%E7%AC%94%E8%AE%B0/" rel="prev" title="关于React Error Boundary笔记">
+                关于React Error Boundary笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">金金金</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、React-合成事件（SyntheticEvent）是什么？"><span class="nav-number">1.</span> <span class="nav-text">一、React 合成事件（SyntheticEvent）是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、合成事件的核心特性"><span class="nav-number">2.</span> <span class="nav-text">二、合成事件的核心特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-跨浏览器兼容性"><span class="nav-number">2.1.</span> <span class="nav-text">1. 跨浏览器兼容性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-事件委托"><span class="nav-number">2.2.</span> <span class="nav-text">2. 事件委托</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-与原生事件高度相似"><span class="nav-number">2.3.</span> <span class="nav-text">3. 与原生事件高度相似</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-事件池（React-17-移除）"><span class="nav-number">2.4.</span> <span class="nav-text">4. 事件池（React 17 移除）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、合成事件的工作流程"><span class="nav-number">3.</span> <span class="nav-text">三、合成事件的工作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、合成事件-vs-原生事件"><span class="nav-number">4.</span> <span class="nav-text">四、合成事件 vs 原生事件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#关键坑点：合成事件的冒泡无法阻止原生事件"><span class="nav-number">4.1.</span> <span class="nav-text">关键坑点：合成事件的冒泡无法阻止原生事件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、合成事件的使用注意事项"><span class="nav-number">5.</span> <span class="nav-text">五、合成事件的使用注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">金金金</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
