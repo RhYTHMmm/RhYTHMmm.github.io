@@ -228,6 +228,171 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/04/17/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5url%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="金金金">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="叶子不能吃哦">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2024/04/17/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5url%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88/" itemprop="url">浏览器输入url会发生什么</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-04-17T12:01:45+08:00">
+                2024-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <ol>
+<li>dns解析获取IP地址<ol>
+<li>查找缓存，浏览器缓存，操作系统缓存，路由器缓存，ISP缓存</li>
+<li>缓存没找到的话，通过递归的方式去dns服务器查找，根域名服务器，顶级域名服务器，权威域名服务器</li>
+<li>找到ip地址后，可以通过该ip地址连接服务器，并且ip地址信息会被发送回用户的电脑，缓存下来</li>
+</ol>
+</li>
+<li>建立TCP链接，三次握手</li>
+<li>发送http请求，获取到index.html<ol>
+<li>创建DOM tree</li>
+<li>遇到link标签，下载css文件，创建cssOM</li>
+<li>将css attachment到DOM tree 形成render tree</li>
+<li>浏览器进行layout和paint</li>
+</ol>
+</li>
+<li>回流和重绘<ol>
+<li>回流reflow, 第一次计算大小和位置的时候是layout, 之后再次计算大小和位置是回流<ol>
+<li>什么时候会回流?<ol>
+<li>dom结构发生了改变</li>
+<li>改变布局，例如width height padding font-size</li>
+<li>窗口resize</li>
+<li>调用getComputedStyle方法获取尺寸和位置信息</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>重绘repaint，第一次渲染内容为paint, 之后重新渲染称为重绘</li>
+<li>回流一定会引起重绘，消耗性能，怎么避免回流<ol>
+<li>尽量一次性修改css</li>
+<li>避免频繁操作DOM</li>
+<li>避免调用getComputedStyle方法获取尺寸和位置信息</li>
+<li>position 为absolute和fixed开销相对较小</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>新的合成层CompositingLayer<ol>
+<li>将元素绘制到多个合成图层中</li>
+<li>通过一些方法创建新的合成图层, 新的图层可以利用GPU来加速绘制<ol>
+<li>3dtransforms/video/canvas/iframe/position:fixed/will-change</li>
+<li>但是以内存管理为代价，不能滥用</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/04/09/%E5%85%B3%E4%BA%8EReact-Error-Boundary%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1506,7 +1671,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
