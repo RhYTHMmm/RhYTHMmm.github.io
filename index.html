@@ -228,6 +228,299 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2026/03/28/AI%E8%82%B2%E5%84%BF%E5%BA%94%E7%94%A8RAG%E6%80%9D%E8%80%83%E4%B8%8E%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="金金金">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="叶子不能吃哦">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2026/03/28/AI%E8%82%B2%E5%84%BF%E5%BA%94%E7%94%A8RAG%E6%80%9D%E8%80%83%E4%B8%8E%E5%AE%9E%E7%8E%B0/" itemprop="url">AI育儿应用RAG思考与实现</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2026-03-28T23:51:16+08:00">
+                2026-03-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="从“会聊天”到“可追溯”：Sprout-AI-的-RAG-思考与实现复盘"><a href="#从“会聊天”到“可追溯”：Sprout-AI-的-RAG-思考与实现复盘" class="headerlink" title="从“会聊天”到“可追溯”：Sprout AI 的 RAG 思考与实现复盘"></a>从“会聊天”到“可追溯”：Sprout AI 的 RAG 思考与实现复盘</h1><blockquote>
+<p>一篇面向真实业务落地的 RAG 实践记录：为什么做、怎么做、做成了什么、还缺什么。</p>
+</blockquote>
+<hr>
+<h2 id="1-背景：育儿问答为什么必须做-RAG"><a href="#1-背景：育儿问答为什么必须做-RAG" class="headerlink" title="1. 背景：育儿问答为什么必须做 RAG"></a>1. 背景：育儿问答为什么必须做 RAG</h2><p>在育儿场景里，用户最在意三件事：</p>
+<ul>
+<li>回答是否可信</li>
+<li>建议是否适配宝宝年龄</li>
+<li>出问题时是否给出正确风险提示</li>
+</ul>
+<p>纯大模型对话可以“说得通”，但不一定“说得准”。<br>尤其在喂养、发育、发热等高关注问题上，如果没有可追溯的知识来源，产品很难长期稳定。</p>
+<p>所以我们在 Sprout AI 里引入 RAG（Retrieval-Augmented Generation）：<br>把权威知识源、宝宝档案、对话上下文，统一注入到一次生成链路中。</p>
+<hr>
+<h2 id="2-本项目的-RAG-目标定义"><a href="#2-本项目的-RAG-目标定义" class="headerlink" title="2. 本项目的 RAG 目标定义"></a>2. 本项目的 RAG 目标定义</h2><p>我们没有把目标定义成“做一个通用知识库”，而是更聚焦：</p>
+<ul>
+<li>场景：<code>0-3 岁</code> 家庭育儿问答</li>
+<li>数据源：WHO、CDC、AAP/HealthyChildren、NHS（首批）</li>
+<li>输出要求：回答可执行、可解释、可引用</li>
+<li>工程要求：失败不阻塞主链路，先保证可用性</li>
+</ul>
+<p>一句话：先把“能跑且可信”做对，再追求“更聪明”。</p>
+<hr>
+<h2 id="3-架构总览：离线构建-在线检索生成"><a href="#3-架构总览：离线构建-在线检索生成" class="headerlink" title="3. 架构总览：离线构建 + 在线检索生成"></a>3. 架构总览：离线构建 + 在线检索生成</h2><p>当前链路分两段：</p>
+<ol>
+<li>离线数据构建</li>
+</ol>
+<ul>
+<li><code>import</code>：导入权威知识源</li>
+<li><code>chunk</code>：按规则切分知识片段</li>
+<li><code>embed</code>：生成向量并写入 <code>pgvector</code></li>
+</ul>
+<ol start="2">
+<li>在线问答</li>
+</ol>
+<ul>
+<li>用户提问 -&gt; 计算 query embedding</li>
+<li>向量召回 TopK 片段（带年龄优先）</li>
+<li>拼接 RAG 上下文 + 宝宝档案 + 时间上下文</li>
+<li>调用模型流式生成</li>
+<li>在回复末尾追加“参考来源”</li>
+</ul>
+<p>对应命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm run rag:import</span><br><span class="line">npm run rag:chunk</span><br><span class="line">npm run rag:embed</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-数据层设计：为什么是-Source-Chunk-Embedding-三层"><a href="#4-数据层设计：为什么是-Source-Chunk-Embedding-三层" class="headerlink" title="4. 数据层设计：为什么是 Source / Chunk / Embedding 三层"></a>4. 数据层设计：为什么是 Source / Chunk / Embedding 三层</h2><p>我们在 Prisma 中拆了三张核心表：</p>
+<ul>
+<li><code>KnowledgeSource</code>：原始来源与清洗文本（来源、标题、URL、状态等）</li>
+<li><code>KnowledgeChunk</code>：切片后的检索单元（topic、ageTag、tags、tokenCount）</li>
+<li><code>KnowledgeEmbedding</code>：向量与模型元信息（<code>vector</code>, <code>model</code>, <code>dimensions</code>）</li>
+</ul>
+<p>这样的拆分有三个好处：</p>
+<ul>
+<li>可追溯：任何回答都能定位到源 URL</li>
+<li>可重建：换切块或换 embedding 模型时可局部重跑</li>
+<li>可演进：后续加重排、加多向量策略不需要推翻 schema</li>
+</ul>
+<hr>
+<h2 id="5-离线管线实现细节"><a href="#5-离线管线实现细节" class="headerlink" title="5. 离线管线实现细节"></a>5. 离线管线实现细节</h2><h3 id="5-1-Source-Import：先做“高质量小规模”"><a href="#5-1-Source-Import：先做“高质量小规模”" class="headerlink" title="5.1 Source Import：先做“高质量小规模”"></a>5.1 Source Import：先做“高质量小规模”</h3><p>我们没有一上来做全网爬虫，而是把权威内容整理为 Markdown 文件放在 <code>data/rag-sources/</code>。<br>每个文件用 frontmatter 标注：</p>
+<ul>
+<li><code>sourceOrg</code></li>
+<li><code>sourceTitle</code></li>
+<li><code>sourceUrl</code></li>
+<li><code>topic</code></li>
+<li><code>language</code></li>
+<li><code>ageRange</code></li>
+<li><code>status</code></li>
+<li><code>tags</code></li>
+<li><code>publishedAt</code></li>
+<li><code>lastReviewedAt</code></li>
+</ul>
+<p>导入脚本会：</p>
+<ul>
+<li>解析 frontmatter</li>
+<li>清洗正文（保留段落结构）</li>
+<li>按 <code>sourceUrl</code> 做 upsert，保证幂等</li>
+</ul>
+<p>这种方式的优点是：前期质量可控，维护成本低，适合业务验证阶段。</p>
+<h3 id="5-2-Chunk：可读性优先，不做纯长度盲切"><a href="#5-2-Chunk：可读性优先，不做纯长度盲切" class="headerlink" title="5.2 Chunk：可读性优先，不做纯长度盲切"></a>5.2 Chunk：可读性优先，不做纯长度盲切</h3><p>切块策略在 <code>splitIntoChunks</code> 中实现：</p>
+<ul>
+<li>先按 Markdown 标题分 section</li>
+<li>再合并到目标长度（默认约 600 字符）</li>
+<li>最大长度保护（默认约 900）</li>
+<li>尾部 overlap（默认约 80）</li>
+</ul>
+<p>并为每个 chunk 写入：</p>
+<ul>
+<li><code>topic</code></li>
+<li><code>ageTag</code></li>
+<li><code>tags</code></li>
+<li><code>tokenCount</code>（估算）</li>
+</ul>
+<p>这一步会先删旧 chunk 和 embedding，再重建，避免脏数据混用。</p>
+<h3 id="5-3-Embedding：OpenAI-compatible-pgvector"><a href="#5-3-Embedding：OpenAI-compatible-pgvector" class="headerlink" title="5.3 Embedding：OpenAI-compatible + pgvector"></a>5.3 Embedding：OpenAI-compatible + pgvector</h3><p>向量化脚本支持 OpenAI-compatible 接口，默认可用 GLM 路径：</p>
+<ul>
+<li><code>EMBEDDING_BASE_URL</code></li>
+<li><code>EMBEDDING_API_KEY</code> / <code>ZAI_API_KEY</code> / <code>GLM_API_KEY</code></li>
+<li><code>EMBEDDING_MODEL</code></li>
+<li><code>EMBEDDING_DIMENSIONS</code>（可选）</li>
+</ul>
+<p>实践里有一个工程点：Prisma 对 <code>vector</code> 类型使用 <code>Unsupported(&quot;vector&quot;)</code>，<br>所以向量本体通过 SQL 写入（<code>$executeRawUnsafe</code> + <code>::vector</code>）。</p>
+<hr>
+<h2 id="6-在线检索实现：先把“稳”放在第一位"><a href="#6-在线检索实现：先把“稳”放在第一位" class="headerlink" title="6. 在线检索实现：先把“稳”放在第一位"></a>6. 在线检索实现：先把“稳”放在第一位</h2><p>在线检索由 <code>retrieveKnowledge</code> 完成，流程很直接：</p>
+<ol>
+<li>对用户问题做 embedding</li>
+<li>在 PostgreSQL 中用 <code>ke.vector &lt;=&gt; query</code> 做相似度排序</li>
+<li>以 <code>ageTag</code> 命中优先（例如 <code>6m</code>）</li>
+<li>取 <code>topK=3</code>，并做 <code>minScore</code> 过滤</li>
+</ol>
+<p>核心 SQL 思路：</p>
+<ul>
+<li><code>score = 1 - distance</code></li>
+<li><code>ageTag</code> 命中排前</li>
+<li>再按向量距离升序</li>
+</ul>
+<p>这版是“纯向量召回 + 年龄偏置”，还没上 BM25 混合检索和重排器。<br>优点是链路短、可解释、调参简单。</p>
+<hr>
+<h2 id="7-生成阶段：把-RAG、宝宝档案、时间上下文叠在一起"><a href="#7-生成阶段：把-RAG、宝宝档案、时间上下文叠在一起" class="headerlink" title="7. 生成阶段：把 RAG、宝宝档案、时间上下文叠在一起"></a>7. 生成阶段：把 RAG、宝宝档案、时间上下文叠在一起</h2><p>在聊天流式接口中，我们把上下文分四层注入：</p>
+<ul>
+<li>系统规则（安全边界、回答风格）</li>
+<li>运行时上下文（当前时间、时区）</li>
+<li>个性化上下文（宝宝档案 + 月龄）</li>
+<li>RAG 检索上下文（TopK 片段）</li>
+</ul>
+<p>其中月龄会映射为 <code>ageTag</code>，用于检索阶段优先匹配年龄片段。</p>
+<p>一个关键取舍：<br>RAG 检索失败时不让主链路失败。检索异常会被捕获，模型仍可回退到通用回答。</p>
+<p>这保证了服务稳定性，不会因为知识库偶发问题让聊天不可用。</p>
+<hr>
+<h2 id="8-“可追溯”是如何落地到用户可见层的"><a href="#8-“可追溯”是如何落地到用户可见层的" class="headerlink" title="8. “可追溯”是如何落地到用户可见层的"></a>8. “可追溯”是如何落地到用户可见层的</h2><p>我们做了两层来源透出：</p>
+<ol>
+<li>Prompt 层：把检索片段的来源信息（机构、标题、URL）放入 RAG 上下文</li>
+<li>展示层：流式输出结束后，追加“参考来源”Markdown 区块</li>
+</ol>
+<p>同时，落库时也会把“回答正文 + 参考来源”一起持久化，<br>保证历史消息回看时仍然有出处。</p>
+<p>这件事非常重要，因为它把“模型说了什么”变成“模型依据什么说”。</p>
+<hr>
+<h2 id="9-这版方案的几个工程取舍"><a href="#9-这版方案的几个工程取舍" class="headerlink" title="9. 这版方案的几个工程取舍"></a>9. 这版方案的几个工程取舍</h2><h3 id="9-1-为什么先不做“全自动爬虫-海量知识”"><a href="#9-1-为什么先不做“全自动爬虫-海量知识”" class="headerlink" title="9.1 为什么先不做“全自动爬虫 + 海量知识”"></a>9.1 为什么先不做“全自动爬虫 + 海量知识”</h3><p>因为早期瓶颈不是“知识太少”，而是“知识质量不稳定”。<br>先小而精，能更快验证：召回质量是否真的提升了回答可信度。</p>
+<h3 id="9-2-为什么先不做混合检索-重排"><a href="#9-2-为什么先不做混合检索-重排" class="headerlink" title="9.2 为什么先不做混合检索 / 重排"></a>9.2 为什么先不做混合检索 / 重排</h3><p>当前体量下，纯向量 + 年龄偏置已经可用。<br>先把召回、注入、引用、落库这一整条链路走通，比过早堆复杂算法更重要。</p>
+<h3 id="9-3-为什么检索失败不抛错"><a href="#9-3-为什么检索失败不抛错" class="headerlink" title="9.3 为什么检索失败不抛错"></a>9.3 为什么检索失败不抛错</h3><p>RAG 在业务里是增强层，不应成为单点故障。<br>用户应该始终得到可用回答，只是“有检索”与“无检索”的质量差异。</p>
+<hr>
+<h2 id="10-已知不足与下一步"><a href="#10-已知不足与下一步" class="headerlink" title="10. 已知不足与下一步"></a>10. 已知不足与下一步</h2><p>当前版本仍有改进空间：</p>
+<ul>
+<li>召回层：增加关键词检索与向量混合（Hybrid Search）</li>
+<li>精排层：增加 reranker，提升 TopK 质量</li>
+<li>评测层：建立离线评估集（命中率、引用正确率、幻觉率）</li>
+<li>内容层：补充中文高质量来源与更新策略</li>
+<li>安全层：更细粒度的医疗风险策略与拒答策略</li>
+</ul>
+<p>我更看重的下一步不是“再加模型”，而是“把评测基线立起来”。</p>
+<hr>
+<h2 id="11-给同类项目的一点建议"><a href="#11-给同类项目的一点建议" class="headerlink" title="11. 给同类项目的一点建议"></a>11. 给同类项目的一点建议</h2><p>如果你也在做垂直场景 RAG，可以直接复用这套节奏：</p>
+<ol>
+<li>先定义“可信来源白名单”</li>
+<li>先把三层数据模型建好（Source/Chunk/Embedding）</li>
+<li>先跑通离线脚本，再接在线生成</li>
+<li>先把“可追溯引用”做出来</li>
+<li>最后再逐步加混合检索与重排</li>
+</ol>
+<p>先把“工程闭环”做完，再谈“算法上限”。</p>
+<hr>
+<h2 id="12-文中对应实现位置（便于读者延伸）"><a href="#12-文中对应实现位置（便于读者延伸）" class="headerlink" title="12. 文中对应实现位置（便于读者延伸）"></a>12. 文中对应实现位置（便于读者延伸）</h2><ul>
+<li>数据模型：<code>prisma/schema.prisma</code></li>
+<li>离线脚本：<ul>
+<li><code>scripts/rag/import-sources.mjs</code></li>
+<li><code>scripts/rag/chunk-sources.mjs</code></li>
+<li><code>scripts/rag/embed-chunks.mjs</code></li>
+</ul>
+</li>
+<li>在线检索：<code>lib/rag/retrieve.ts</code></li>
+<li>上下文与引用拼装：<code>lib/rag/build-context.ts</code></li>
+<li>聊天接入：<code>app/api/v1/conversations/[conversationId]/messages/stream/route.ts</code></li>
+</ul>
+<hr>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>RAG 在这个项目里，不是“为了用新技术”，而是为了把回答从“看起来合理”推进到“可被信任”。<br>它本质上是一个产品可信度工程，而不仅仅是模型工程。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2026/03/21/%E5%9F%BA%E4%BA%8ENext-js-Supabase%E5%AE%9E%E7%8E%B0%E5%AE%89%E5%85%A8%E7%99%BB%E5%BD%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1905,141 +2198,13 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/25/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="金金金">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="叶子不能吃哦">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/25/hello-world/" itemprop="url">Hello World!</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-25T22:08:43+08:00">
-                2019-11-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post1"><a href="#Create-a-new-post1" class="headerlink" title="Create a new post1"></a>Create a new post1</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post1"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+  </nav>
+
 
 
           </div>
@@ -2083,7 +2248,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
